@@ -1,0 +1,59 @@
+timestamp: 2023-03-28T21:17:30.158585
+CREATE TABLE "auth_user"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "username" CHAR(512) UNIQUE,
+    "email" CHAR(512) UNIQUE,
+    "password" CHAR(512),
+    "first_name" CHAR(512),
+    "last_name" CHAR(512),
+    "sso_id" CHAR(512),
+    "action_token" CHAR(512),
+    "last_password_change" TIMESTAMP,
+    "past_passwords_hash" TEXT
+);
+success!
+timestamp: 2023-03-28T21:17:30.161044
+CREATE TABLE "auth_user_tag_groups"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "tagpath" CHAR(512),
+    "record_id" INTEGER REFERENCES "auth_user" ("id") ON DELETE CASCADE ON UPDATE CASCADE  
+);
+success!
+timestamp: 2023-03-28T21:17:30.164490
+CREATE TABLE "artist"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(100)
+);
+success!
+timestamp: 2023-04-09T10:11:14.226565
+CREATE TABLE "speaker"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "first_name" CHAR(20),
+    "last_name" CHAR(20),
+    "bio" TEXT
+);
+success!
+timestamp: 2023-04-09T10:11:14.229409
+CREATE TABLE "session"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "when" TIMESTAMP,
+    "name" CHAR(100),
+    "description" TEXT,
+    "speaker" INTEGER REFERENCES "speaker" ("id") ON DELETE CASCADE ON UPDATE CASCADE  
+);
+success!
+timestamp: 2023-04-09T11:15:49.479214
+ALTER TABLE "speaker" ADD "title" CHAR(100);
+success!
+timestamp: 2023-04-09T11:16:35.369358
+ALTER TABLE "speaker" ADD "company" CHAR(100);
+success!
+timestamp: 2023-04-10T22:06:52.551259
+CREATE TABLE "room"(
+    "id" INTEGER PRIMARY KEY AUTOINCREMENT,
+    "name" CHAR(100)
+);
+success!
+timestamp: 2023-04-10T22:11:34.866671
+ALTER TABLE "session" ADD "room" INTEGER REFERENCES "room" ("id") ON DELETE CASCADE ON UPDATE CASCADE  ;
+success!
