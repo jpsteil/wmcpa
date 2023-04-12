@@ -1,0 +1,8 @@
+.idea
+*.pyc
+*.log
+*.sqlite
+/data/*.txt
+\data\*.txt
+/dist/*
+
