@@ -3,35 +3,17 @@ import os
 import sqlite3
 from dateutil.parser import parse
 
-"""
-read the input file
-parse the records
-insert into database
-"""
-
 BASE_PATH = os.path.join("/home", "jim", "dev", "py4web", "apps", "wmcpa")
 INPUT_FILENAME = os.path.join(BASE_PATH, "scripts", "sessions.csv")
-DATABASE_NAME = os.path.join(BASE_PATH, "databases", "storage.db")
+DATABASE_NAME = os.path.join(BASE_PATH, "databases", "wmcpa_live.db")
 
 
 def drop_tables(c):
-    """
-    Drop the listed tables
-
-    Args:
-        c (cursor): the cursor to use for database operations
-    """
     for table in ["session", "room", "speaker"]:
         c.execute(f"DROP TABLE IF EXISTS {table}")
 
 
 def create_tables(c):
-    """
-    Create the speaker, room and session tables
-
-    Args:
-        c (cursor): the cursor to use for database operations
-    """
     c.execute(
         """
     CREATE TABLE speaker 
@@ -66,10 +48,6 @@ def create_tables(c):
 
 
 def import_data():
-    """
-    delete and recreate the tables
-    read through the input file and repopulate the tables
-    """
     conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
 
@@ -78,12 +56,12 @@ def import_data():
 
     conn.commit()
 
-    #  read through input file
-    with open(os.path.join(INPUT_FILENAME), "r") as csvfile:
+    with open(INPUT_FILENAME, "r") as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=",", quotechar='"')
 
+        rooms = dict()
+        speakers = dict()
         for row in csv_reader:
-            #  'row' is a list of the csv fields in the current
             start_time = row[0]
             session_name = row[1]
             session_description = row[2]
@@ -94,28 +72,14 @@ def import_data():
             speaker_bio = row[7]
             room = row[8]
 
-            #  check for room
-            room_id = None
-            c.execute("SELECT id FROM room WHERE name = ?", [room])
-            for room_id in c.fetchall():
-                room_id = room_id[0]
-
+            room_id = rooms.get(room)
             if not room_id:
-                #  insert into the room table and get the new id
-                c.execute("INSERT INTO room (name) VALUES(?)", [room])
+                c.execute("INSERT INTO room (name) VALUES (?)", [room])
                 room_id = c.lastrowid
+                rooms[room] = room_id
 
-            #  check for speaker
-            speaker_id = None
-            c.execute(
-                "SELECT id FROM speaker where first_name = ? and last_name = ?",
-                [speaker_first, speaker_last],
-            )
-            for speaker_id in c.fetchall():
-                speaker_id = speaker_id[0]
-
+            speaker_id = speakers.get(f"{speaker_first} {speaker_last}")
             if not speaker_id:
-                #  insert into the speaker table and get the new id
                 c.execute(
                     "INSERT INTO speaker (first_name, last_name, company, title, bio) VALUES (?, ?, ?, ?, ?)",
                     [
@@ -127,19 +91,13 @@ def import_data():
                     ],
                 )
                 speaker_id = c.lastrowid
+                speakers[f"{speaker_first} {speaker_last}"] = speaker_id
 
-            #  insert to the session table
             c.execute(
-                'INSERT INTO session ("start_time", name, description, speaker, room) VALUES (?, ?, ?, ?, ?)',
-                [
-                    parse(start_time).strftime("%Y-%m-%d %H:%M:00"),
-                    session_name,
-                    session_description,
-                    speaker_id,
-                    room_id,
-                ],
+                "INSERT INTO session (start_time, name, description, speaker, room) VALUES (?, ?, ?, ?, ?)",
+                [start_time, session_name, session_description, speaker_id, room_id],
             )
-    conn.commit()
+        conn.commit()
 
     c.close()
     conn.close()
