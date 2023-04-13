@@ -397,3 +397,23 @@ class DataclassGridSearch:
             field_name = "sq_" + sq.name.replace(" ", "_").replace("/", "_").lower()
             if field_name in field_values and field_values[field_name]:
                 self.filters.append(sq.query(field_values[field_name]))
+
+def get_htmx_form_attrs(url, target, vals=None, encoding="multipart/form-data"):
+    """
+    build the attributes for an htmx form
+
+    Parameters
+    ----------
+    url: url that is submitted
+    target: target div - must include the '#'
+    vals: htmx vals to be passed along with the form submission
+    encoding: encoding to use for the form
+
+    Returns
+    -------
+    dict with the attrs to include on the Form instantiation
+    """
+    attrs = {"_hx-post": url, "_hx-target": target, "_hx-encoding": encoding}
+    if vals:
+        attrs["_hx-vals"] = vals
+    return attrs

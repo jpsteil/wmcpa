@@ -1,0 +1,52 @@
+[[extend 'layout.html']]
+[[if grid.action == 'details':]]
+[[form = grid.render() ]]
+<div class="container" style="font-size: .9rem;">
+    <div class="row" style="margin-bottom: 1rem;">
+        <div class="columns">
+            <div class="column is-one-third">
+                <div class="card">
+                    <header class="card-header">
+                        <div class="card-header-title">
+                            Details
+                        </div>
+                    </header>
+                    <div class="card-content">
+                        <div id="detail-target">
+                            <div hx-get="[[=URL('speaker/detail/%s' % parent_id) ]]" hx-trigger="load"
+                                hx-target="#detail-target">
+                                <img class="htmx-indicator" src="[[=URL('static', 'images/spinner.gif')]]"
+                                    height="20" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="column is-two-thirds">
+                <div class="card">
+                    <header class="card-header">
+                        <div class="card-header-title">
+                            Sessions
+                        </div>
+                    </header>
+                    <div class="card-content">
+                        <div id="sessions-target">
+                            <div hx-get="[[=URL('speaker/sessions', vars=dict(parent_id=parent_id)) ]]"
+                                hx-trigger="load" hx-target="#sessions-target">
+                                <img class="htmx-indicator" src="[[=URL('static', 'images/spinner.gif')]]"
+                                    height="20" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    [[=form.custom.begin]]
+    [[=form.custom.submit]]
+    [[=form.custom.end]]
+</div>
+[[else:]]
+[[=grid.render()]]
+[[pass]]
