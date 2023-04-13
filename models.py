@@ -16,7 +16,7 @@ db.define_table('room',
                 Field('name', length=100))
 
 db.define_table('session',
-                Field('when', 'datetime', requires=IS_DATETIME()),
+                Field('start_time', 'datetime', requires=IS_DATETIME()),
                 Field('name', length=100),
                 Field('description', 'text'),
                 Field('speaker', 'reference speaker', requires=IS_IN_DB(db, 'speaker.id', '%(first_name)s %(last_name)s')),

@@ -3,19 +3,37 @@ import os
 import sqlite3
 from dateutil.parser import parse
 
+"""
+read the input file
+parse the records
+insert into database
+"""
+
+BASE_PATH = os.path.join("/home", "jim", "dev", "py4web", "apps", "wmcpa")
+INPUT_FILENAME = os.path.join(BASE_PATH, "scripts", "sessions.csv")
+DATABASE_NAME = os.path.join(BASE_PATH, "databases", "storage.db")
+
 
 def drop_tables(c):
-    #  create speaker table
-    sql = "DROP TABLE IF EXISTS session"
-    c.execute(sql)
-    sql = "DROP TABLE IF EXISTS room"
-    c.execute(sql)
-    sql = "DROP TABLE IF EXISTS speaker"
-    c.execute(sql)
+    """
+    Drop the listed tables
+
+    Args:
+        c (cursor): the cursor to use for database operations
+    """
+    for table in ["session", "room", "speaker"]:
+        c.execute(f"DROP TABLE IF EXISTS {table}")
 
 
 def create_tables(c):
-    sql = """
+    """
+    Create the speaker, room and session tables
+
+    Args:
+        c (cursor): the cursor to use for database operations
+    """
+    c.execute(
+        """
     CREATE TABLE speaker 
     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
     first_name CHAR(20), 
@@ -24,29 +42,35 @@ def create_tables(c):
     title CHAR(100), 
     company CHAR(100))
     """
-    c.execute(sql)
+    )
 
-    sql = """
+    c.execute(
+        """
     CREATE TABLE room 
     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
     name CHAR(100))
     """
-    c.execute(sql)
+    )
 
-    sql = """
+    c.execute(
+        """
     CREATE TABLE session 
     ("id" INTEGER PRIMARY KEY AUTOINCREMENT, 
-    "when" TIMESTAMP, 
+    "start_time" TIMESTAMP, 
     "name" CHAR(100), 
     "description" TEXT, 
     "speaker" INTEGER REFERENCES speaker (id) ON DELETE CASCADE ON UPDATE CASCADE, 
     "room" INTEGER REFERENCES room (id) ON DELETE CASCADE ON UPDATE CASCADE)
     """
-    c.execute(sql)
+    )
 
 
 def import_data():
-    conn = sqlite3.connect(os.path.join("/home", "jim", "Documents", "wmcpa.db"))
+    """
+    delete and recreate the tables
+    read through the input file and repopulate the tables
+    """
+    conn = sqlite3.connect(DATABASE_NAME)
     c = conn.cursor()
 
     drop_tables(c)
@@ -55,14 +79,12 @@ def import_data():
     conn.commit()
 
     #  read through input file
-    with open(
-        os.path.join("/home", "jim", "Documents", "sessions.csv"), "r"
-    ) as csvfile:
+    with open(os.path.join(INPUT_FILENAME), "r") as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=",", quotechar='"')
 
         for row in csv_reader:
             #  'row' is a list of the csv fields in the current
-            when = row[0]
+            start_time = row[0]
             session_name = row[1]
             session_description = row[2]
             speaker_first = row[3]
@@ -79,6 +101,7 @@ def import_data():
                 room_id = room_id[0]
 
             if not room_id:
+                #  insert into the room table and get the new id
                 c.execute("INSERT INTO room (name) VALUES(?)", [room])
                 room_id = c.lastrowid
 
@@ -92,6 +115,7 @@ def import_data():
                 speaker_id = speaker_id[0]
 
             if not speaker_id:
+                #  insert into the speaker table and get the new id
                 c.execute(
                     "INSERT INTO speaker (first_name, last_name, company, title, bio) VALUES (?, ?, ?, ?, ?)",
                     [
@@ -104,11 +128,11 @@ def import_data():
                 )
                 speaker_id = c.lastrowid
 
-            #  build the session
+            #  insert to the session table
             c.execute(
-                'INSERT INTO session ("when", name, description, speaker, room) VALUES (?, ?, ?, ?, ?)',
+                'INSERT INTO session ("start_time", name, description, speaker, room) VALUES (?, ?, ?, ?, ?)',
                 [
-                    parse(when).strftime("%Y-%m-%d %H:%M:00"),
+                    parse(start_time).strftime("%Y-%m-%d %H:%M:00"),
                     session_name,
                     session_description,
                     speaker_id,

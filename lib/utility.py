@@ -19,7 +19,7 @@ def export_to_csv():
         ):
             csv_writer.writerow(
                 [
-                    row.session.when.strftime("%m/%d/%Y %H:%M:%S"),
+                    row.session.start_time.strftime("%m/%d/%Y %H:%M:%S"),
                     row.session.name,
                     row.session.description,
                     row.speaker.first_name,
@@ -64,7 +64,7 @@ def import_data():
     sql = """
     CREATE TABLE session 
     ("id" INTEGER PRIMARY KEY AUTOINCREMENT, 
-    "when" TIMESTAMP, 
+    "start_time" TIMESTAMP, 
     "name" CHAR(100), 
     "description" TEXT, 
     "speaker" INTEGER REFERENCES speaker (id) ON DELETE CASCADE ON UPDATE CASCADE, 
@@ -77,7 +77,7 @@ def import_data():
     with open(os.path.join("/home", "jim", "Documents", "sessions.csv"), "r") as csvfile:
         csv_reader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in csv_reader:
-            when = row[0]
+            start_time = row[0]
             session_name = row[1]
             session_description = row[2]
             speaker_first = row[3]
@@ -108,7 +108,7 @@ def import_data():
                 speaker_id = c.lastrowid
             
             #  build the session
-            c.execute('INSERT INTO session ("when", name, description, speaker, room) VALUES (?, ?, ?, ?, ?)', [parse(when).strftime('%Y-%m-%d %I:%M:00'), session_name, session_description, speaker_id, room_id])
+            c.execute('INSERT INTO session ("start_time", name, description, speaker, room) VALUES (?, ?, ?, ?, ?)', [parse(start_time).strftime('%Y-%m-%d %I:%M:00'), session_name, session_description, speaker_id, room_id])
     conn.commit()
     # 
 
