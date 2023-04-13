@@ -7,19 +7,19 @@ from pydal.validators import *
 
 db.define_table(
     "speaker",
-    Field("first_name", length=20),
-    Field("last_name", length=20),
+    Field("first_name", length=20, requires=IS_NOT_EMPTY()),
+    Field("last_name", length=20, requires=IS_NOT_EMPTY()),
     Field("company", length=100),
     Field("title", length=100),
     Field("bio", "text"),
 )
 
-db.define_table("room", Field("name", length=100))
+db.define_table("room", Field("name", length=100, requires=IS_NOT_EMPTY()))
 
 db.define_table(
     "session",
     Field("start_time", "datetime", requires=IS_DATETIME()),
-    Field("name", length=100),
+    Field("name", length=100, requires=IS_NOT_EMPTY()),
     Field("description", "text"),
     Field(
         "speaker",
@@ -28,6 +28,5 @@ db.define_table(
     ),
     Field("room", "reference room", requires=IS_IN_DB(db, "room.id", "%(name)s")),
 )
-
 
 db.commit()

@@ -16,6 +16,14 @@ def drop_tables(c):
 def create_tables(c):
     c.execute(
         """
+    CREATE TABLE room 
+    (id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    name CHAR(100))
+    """
+    )
+
+    c.execute(
+        """
     CREATE TABLE speaker 
     (id INTEGER PRIMARY KEY AUTOINCREMENT, 
     first_name CHAR(20), 
@@ -23,14 +31,6 @@ def create_tables(c):
     bio TEXT, 
     title CHAR(100), 
     company CHAR(100))
-    """
-    )
-
-    c.execute(
-        """
-    CREATE TABLE room 
-    (id INTEGER PRIMARY KEY AUTOINCREMENT, 
-    name CHAR(100))
     """
     )
 

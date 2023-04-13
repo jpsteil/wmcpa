@@ -1,5 +1,10 @@
 import ombott
-from apps.wmcpa.lib.grid_helpers import GridSearch, GridSearchQuery, enable_htmx_grid, get_htmx_form_attrs
+from apps.wmcpa.lib.grid_helpers import (
+    GridSearch,
+    GridSearchQuery,
+    enable_htmx_grid,
+    get_htmx_form_attrs,
+)
 from py4web import action
 from py4web.core import URL, redirect
 from py4web.utils.form import Form, FormStyleBulma
@@ -54,8 +59,10 @@ def speakers(path=None):
         path,
         db.speaker,
         columns=columns,
-        search_queries=[['Company', lambda value: db.speaker.company.contains(value)],
-                        ['Title', lambda value: db.speaker.title.contains(value)]],
+        search_queries=[
+            ["Company", lambda value: db.speaker.company.contains(value)],
+            ["Title", lambda value: db.speaker.title.contains(value)],
+        ],
         orderby=[db.speaker.last_name, db.speaker.first_name],
         grid_class_style=GridClassStyleBulma,
         formstyle=FormStyleBulma,
@@ -73,8 +80,7 @@ def speakers(path=None):
 
 
 @action("speaker/detail/<speaker_id>", method=["GET", "POST"])
-@action.uses(
-    "form_htmx.html", session, db, auth)
+@action.uses("form_htmx.html", session, db, auth)
 def detail(speaker_id=None):
     speaker = db.speaker(speaker_id)
     if not speaker:
@@ -148,11 +154,7 @@ def detail_edit(speaker_id=None):
 
 @action("speaker/sessions", method=["POST", "GET"])
 @action("speaker/sessions/<path:path>", method=["POST", "GET"])
-@action.uses(
-    "grid_htmx.html",
-    session,
-    db,
-    auth)
+@action.uses("grid_htmx.html", session, db, auth)
 def speaker_sessions(path=None):
     #  set the default
     speaker_id = get_parent(
@@ -186,7 +188,9 @@ def speaker_sessions(path=None):
     )
 
     enable_htmx_grid(
-        grid, "#sessions-target", URL("speaker", "sessions", vars=dict(parent_id=speaker_id))
+        grid,
+        "#sessions-target",
+        URL("speaker", "sessions", vars=dict(parent_id=speaker_id)),
     )
 
     return dict(grid=grid)
@@ -200,7 +204,7 @@ def rooms(path=None):
         path,
         db.room,
         orderby=[db.room.name],
-        search_queries=[['Name', lambda value: db.room.name.contains(value)]],
+        search_queries=[["Name", lambda value: db.room.name.contains(value)]],
         grid_class_style=GridClassStyleBulma,
         formstyle=FormStyleBulma,
         details=False,
@@ -229,7 +233,7 @@ def sessions(path=None):
         GridSearchQuery(
             "filter text",
             lambda value: db.session.name.contains(value)
-                          | db.session.description.contains(value),
+            | db.session.description.contains(value),
         ),
     ]
 
