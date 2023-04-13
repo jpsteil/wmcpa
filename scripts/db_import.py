@@ -5,7 +5,7 @@ from dateutil.parser import parse
 
 BASE_PATH = os.path.join("/home", "jim", "dev", "py4web", "apps", "wmcpa")
 INPUT_FILENAME = os.path.join(BASE_PATH, "scripts", "sessions.csv")
-DATABASE_NAME = os.path.join(BASE_PATH, "databases", "wmcpa_live.db")
+DATABASE_NAME = os.path.join(BASE_PATH, "databases", "storage.db")
 
 
 def drop_tables(c):
@@ -95,7 +95,13 @@ def import_data():
 
             c.execute(
                 "INSERT INTO session (start_time, name, description, speaker, room) VALUES (?, ?, ?, ?, ?)",
-                [start_time, session_name, session_description, speaker_id, room_id],
+                [
+                    parse(start_time).strftime("%Y-%m-%d %H:%M:00"),
+                    session_name,
+                    session_description,
+                    speaker_id,
+                    room_id,
+                ],
             )
         conn.commit()
 

@@ -54,6 +54,8 @@ def speakers(path=None):
         path,
         db.speaker,
         columns=columns,
+        search_queries=[['Company', lambda value: db.speaker.company.contains(value)],
+                        ['Title', lambda value: db.speaker.title.contains(value)]],
         orderby=[db.speaker.last_name, db.speaker.first_name],
         grid_class_style=GridClassStyleBulma,
         formstyle=FormStyleBulma,
@@ -102,7 +104,7 @@ def detail(speaker_id=None):
     )
 
     edit_button = BUTTON(
-        I(_class="fa fa-edit"), _class="submit-edit box-shadow-y", **attrs
+        I(_class="fa fa-edit"), _class="button submit-edit box-shadow-y", **attrs
     )
 
     return dict(form=form, form_fields=DETAIL_FIELDS, edit_button=edit_button)
@@ -142,6 +144,7 @@ def detail_edit(speaker_id=None):
         redirect(URL("speaker/detail/%s" % speaker_id))
 
     return dict(form=form, form_fields=DETAIL_FIELDS)
+
 
 @action("speaker/sessions", method=["POST", "GET"])
 @action("speaker/sessions/<path:path>", method=["POST", "GET"])
@@ -196,8 +199,8 @@ def rooms(path=None):
     grid = Grid(
         path,
         db.room,
-        columns=[db.room.name],
         orderby=[db.room.name],
+        search_queries=[['Name', lambda value: db.room.name.contains(value)]],
         grid_class_style=GridClassStyleBulma,
         formstyle=FormStyleBulma,
         details=False,
@@ -226,7 +229,7 @@ def sessions(path=None):
         GridSearchQuery(
             "filter text",
             lambda value: db.session.name.contains(value)
-            | db.session.description.contains(value),
+                          | db.session.description.contains(value),
         ),
     ]
 
